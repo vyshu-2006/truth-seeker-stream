@@ -42,11 +42,11 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
 
   return (
     <Card 
-      className="cursor-pointer transition-all duration-300 hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden animate-scale-in"
+      className="cursor-pointer transition-all duration-300 hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden animate-scale-in group"
       onClick={onClick}
       style={{ borderLeftColor: getBorderColor(score) }}
     >
-      <CardContent className="p-4 group">
+      <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center">
             {type === "url" ? (

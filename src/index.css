@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -220,11 +221,22 @@
 
 /* Button hover effect */
 .btn-hover-effect {
-  @apply relative overflow-hidden group;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Using the group class directly instead of with @apply */
+.btn-hover-effect {
+  @apply relative overflow-hidden;
 }
 
 .btn-hover-effect::before {
-  @apply content-[''] absolute inset-0 w-full h-full bg-gradient-to-r from-primary/40 to-blue-500/40 opacity-0 group-hover:opacity-100 transition-opacity;
+  @apply content-[''] absolute inset-0 w-full h-full bg-gradient-to-r from-primary/40 to-blue-500/40 opacity-0 transition-opacity;
+}
+
+/* Add group-hover effect without using @apply */
+.group:hover .btn-hover-effect::before {
+  opacity: 1;
 }
 
 /* Card focus state */

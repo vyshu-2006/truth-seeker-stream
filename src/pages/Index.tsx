@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle, CheckCircle, Info, Sparkles, X, Search, ExternalLink, FileText } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Sparkles, X, Search, ExternalLink, FileText, Clock } from "lucide-react";
 import AnalysisResult from "@/components/AnalysisResult";
 import HistoryItem from "@/components/HistoryItem";
 import { analyzeContent } from "@/lib/analyzer";

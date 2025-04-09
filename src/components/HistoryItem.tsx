@@ -3,7 +3,8 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnalysisResult } from "@/types/analysis";
-import { Clock, ExternalLink, FileText } from "lucide-react";
+import { Clock, ExternalLink, FileText, Shield } from "lucide-react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface HistoryItemProps {
   item: AnalysisResult;
@@ -41,40 +42,65 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
   };
 
   return (
-    <Card 
-      className="cursor-pointer transition-all duration-300 hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden animate-scale-in group"
-      onClick={onClick}
-      style={{ borderLeftColor: getBorderColor(score) }}
-    >
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center">
-            {type === "url" ? (
-              <ExternalLink className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
-            ) : (
-              <FileText className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Card 
+          className="cursor-pointer transition-all duration-300 hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden animate-scale-in group"
+          onClick={onClick}
+          style={{ borderLeftColor: getBorderColor(score) }}
+        >
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center">
+                {type === "url" ? (
+                  <ExternalLink className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                ) : (
+                  <FileText className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                )}
+                <span className="text-sm font-medium truncate max-w-[150px] group-hover:text-primary transition-colors">
+                  {type === "url" 
+                    ? truncateText(url || "URL Analysis", 30) 
+                    : "Text Analysis"}
+                </span>
+              </div>
+              <Badge className={`text-xs ${getScoreBadge(score)} shadow-sm transition-all duration-300 group-hover:shadow scale-in flex items-center gap-1`}>
+                <Shield className="h-3 w-3" /> {score}%
+              </Badge>
+            </div>
+            {content && (
+              <p className="text-xs text-muted-foreground mb-2 line-clamp-2 bg-muted/20 p-1.5 rounded group-hover:bg-muted/30 transition-colors">
+                {truncateText(content, 60)}
+              </p>
             )}
-            <span className="text-sm font-medium truncate max-w-[150px] group-hover:text-primary transition-colors">
-              {type === "url" 
-                ? truncateText(url || "URL Analysis", 30) 
-                : "Text Analysis"}
-            </span>
+            <div className="flex items-center text-xs text-muted-foreground mt-2 opacity-80 group-hover:opacity-100 transition-opacity">
+              <Clock className="h-3 w-3 mr-1" />
+              <span>{formatTimestamp(timestamp)}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-64 p-3">
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Reliability Score: {score}%</h4>
+          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full transition-all duration-500" 
+              style={{ 
+                width: `${score}%`, 
+                backgroundColor: getBorderColor(score) 
+              }}
+            ></div>
           </div>
-          <Badge className={`text-xs ${getScoreBadge(score)} shadow-sm transition-all duration-300 group-hover:shadow scale-in`}>
-            {score}%
-          </Badge>
-        </div>
-        {content && (
-          <p className="text-xs text-muted-foreground mb-2 line-clamp-2 bg-muted/20 p-1.5 rounded group-hover:bg-muted/30 transition-colors">
-            {truncateText(content, 60)}
+          <p className="text-xs text-muted-foreground">
+            {content ? truncateText(content, 100) : "No content preview available"}
           </p>
-        )}
-        <div className="flex items-center text-xs text-muted-foreground mt-2 opacity-80 group-hover:opacity-100 transition-opacity">
-          <Clock className="h-3 w-3 mr-1" />
-          <span>{formatTimestamp(timestamp)}</span>
+          <div className="text-xs flex items-center text-muted-foreground pt-1 border-t">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>{formatTimestamp(timestamp)}</span>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </HoverCardContent>
+    </HoverCard>
   );
 };
 

@@ -19,6 +19,12 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
     return "bg-red-100 text-red-800";
   };
 
+  const getBorderColor = (value: number) => {
+    if (value >= 70) return "#10b981";
+    if (value >= 40) return "#f59e0b";
+    return "#ef4444";
+  };
+
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
@@ -36,9 +42,9 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
 
   return (
     <Card 
-      className="cursor-pointer transition-all hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary"
+      className="cursor-pointer transition-all hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden"
       onClick={onClick}
-      style={{ borderLeftColor: score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444" }}
+      style={{ borderLeftColor: getBorderColor(score) }}
     >
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
@@ -48,22 +54,22 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
             ) : (
               <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
             )}
-            <span className="text-sm font-medium">
+            <span className="text-sm font-medium truncate max-w-[150px]">
               {type === "url" 
                 ? truncateText(url || "URL Analysis", 30) 
                 : "Text Analysis"}
             </span>
           </div>
-          <Badge className={`text-xs ${getScoreBadge(score)}`}>
+          <Badge className={`text-xs ${getScoreBadge(score)} shadow-sm`}>
             {score}%
           </Badge>
         </div>
         {content && (
-          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+          <p className="text-xs text-muted-foreground mb-2 line-clamp-2 bg-muted/20 p-1.5 rounded">
             {truncateText(content, 60)}
           </p>
         )}
-        <div className="flex items-center text-xs text-muted-foreground">
+        <div className="flex items-center text-xs text-muted-foreground mt-2">
           <Clock className="h-3 w-3 mr-1" />
           <span>{formatTimestamp(timestamp)}</span>
         </div>

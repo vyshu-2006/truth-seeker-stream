@@ -156,3 +156,17 @@
 .fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Glass effect */
+.glass {
+  @apply backdrop-blur-sm bg-white/40 border border-white/20;
+}
+
+/* Subtle animation for cards */
+.card-hover {
+  @apply transition-all duration-300 hover:translate-y-[-2px];
+}

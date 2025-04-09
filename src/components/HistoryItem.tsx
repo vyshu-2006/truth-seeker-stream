@@ -36,8 +36,9 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
 
   return (
     <Card 
-      className="cursor-pointer transition-all hover:shadow-md" 
+      className="cursor-pointer transition-all hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary"
       onClick={onClick}
+      style={{ borderLeftColor: score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444" }}
     >
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
@@ -58,7 +59,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
           </Badge>
         </div>
         {content && (
-          <p className="text-xs text-muted-foreground mb-2">
+          <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
             {truncateText(content, 60)}
           </p>
         )}

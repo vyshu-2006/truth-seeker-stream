@@ -2,11 +2,11 @@
 import React from "react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { AnalysisResult } from "@/types/analysis";
+import type { AnalysisResult as AnalysisResultType } from "@/types/analysis";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 
 interface AnalysisResultProps {
-  result: AnalysisResult;
+  result: AnalysisResultType;
 }
 
 const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
@@ -56,7 +56,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           <span className="text-sm font-medium">Reliability Score</span>
           <span className="text-sm font-medium">{score}%</span>
         </div>
-        <Progress value={score} className="h-2" indicatorClassName={getScoreColor(score)} />
+        <Progress value={score} className={`h-2 ${getScoreColor(score)}`} />
       </div>
 
       <div className="space-y-4 pt-4 border-t">
@@ -71,7 +71,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           <div className="space-y-2">
             <h5 className="text-sm font-medium">Factual Consistency</h5>
             <div className="flex items-center space-x-2">
-              <Progress value={factualConsistency} className="h-2 flex-1" />
+              <Progress value={factualConsistency} className={`h-2 flex-1 ${factualConsistency >= 70 ? "bg-green-500" : factualConsistency >= 40 ? "bg-yellow-500" : "bg-red-500"}`} />
               <span className="text-sm">{factualConsistency}%</span>
             </div>
           </div>
@@ -79,7 +79,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           <div className="space-y-2">
             <h5 className="text-sm font-medium">Source Reputation</h5>
             <div className="flex items-center space-x-2">
-              <Progress value={sourceReputation} className="h-2 flex-1" />
+              <Progress value={sourceReputation} className={`h-2 flex-1 ${sourceReputation >= 70 ? "bg-green-500" : sourceReputation >= 40 ? "bg-yellow-500" : "bg-red-500"}`} />
               <span className="text-sm">{sourceReputation}%</span>
             </div>
           </div>

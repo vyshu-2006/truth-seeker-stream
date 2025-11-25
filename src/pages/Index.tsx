@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle, CheckCircle, Info, Sparkles, X, Search, ExternalLink, FileText, Clock } from "lucide-react";
+import { CheckCircle, Info, Sparkles, X, Search, ExternalLink, FileText, Clock, LogOut } from "lucide-react";
 import AnalysisResult from "@/components/AnalysisResult";
 import HistoryItem from "@/components/HistoryItem";
 import { analyzeContent } from "@/lib/analyzer";
 import { AnalysisResult as AnalysisResultType } from "@/types/analysis";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 
 const Index = () => {
   const [url, setUrl] = useState("");
@@ -18,7 +21,52 @@ const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultType | null>(null);
   const [history, setHistory] = useState<AnalysisResultType[]>([]);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setLoading(false);
+      }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const handleUrlAnalysis = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,19 +143,38 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
       <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <header className="mb-12 text-center fade-in">
-          <div className="flex justify-center mb-4">
-            <div className="relative animate-float">
-              <Sparkles className="h-14 w-14 text-primary animate-pulse" />
-              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full -z-10"></div>
+        <header className="mb-12 fade-in">
+          <div className="flex justify-between items-start mb-8">
+            <div className="flex-1"></div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">
+                {session.user.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
             </div>
           </div>
-          <h1 className="text-5xl font-bold mb-3 primary-gradient-text drop-shadow-sm">
-            Truth Seeker
-          </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-            Real-time fake news detection powered by advanced analysis
-          </p>
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="relative animate-float">
+                <Sparkles className="h-14 w-14 text-primary animate-pulse" />
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full -z-10"></div>
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold mb-3 primary-gradient-text drop-shadow-sm">
+              Truth Seeker
+            </h1>
+            <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+              Real-time fake news detection powered by advanced analysis
+            </p>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

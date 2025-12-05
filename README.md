@@ -5,7 +5,7 @@
 ## Demo
 - Demo link (deployed frontend / demo): https://truth-seeker-stream.lovable.app
 - Quick sample input: "Drinking carrot juice prevents COVID-19"
-- Expected output: `Label: False` — `Confidence: 0.92` — `Evidence: [link-to-source]`
+- Expected output: `Label: False` — `Confidence: 0.92` 
   
 ## Features
 - Claim ingestion: single-sentence claim or short paragraphs

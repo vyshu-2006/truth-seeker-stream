@@ -1,73 +1,32 @@
-# Welcome to your Lovable project
+# Truth_Seeker
 
-## Project info
+**Truth_Seeker** is an end-to-end system for automated claim verification and misinformation detection. It ingests textual claims or social media posts, retrieves supporting evidence from trusted sources, and classifies the claim as *True*, *False*, or *Unverified* using an ensemble of NLP models and heuristics.
 
-**URL**: https://lovable.dev/projects/efd9487e-22fa-483d-9f73-909560e812f3
+## Demo
+- Demo link (deployed frontend / demo): https://truth-seeker-stream.lovable.app
+- Quick sample input: "Drinking carrot juice prevents COVID-19"
+- Expected output: `Label: False` — `Confidence: 0.92` — `Evidence: [link-to-source]`
+  
+## Features
+- Claim ingestion: single-sentence claim or short paragraphs
+- Evidence retrieval: web scraping + news API + cached trusted sources
+- NLP pipeline: text normalization → candidate retrieval → sentence-level verification → aggregation
+- Model ensemble: fine-tuned transformer (BERT/DistilBERT) + TF‑IDF + logistic regression baseline
+- Explainability: highlight sentences that support or contradict the claim with source URLs
+- REST API for inference and batch processing
 
-## How can I edit this code?
+## Evaluation metrics 
 
-There are several ways of editing your application.
+Classification: Accuracy, Precision, Recall, F1-score (macro + per-class)
 
-**Use Lovable**
+Calibration: Reliability diagrams or Expected Calibration Error (optional)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/efd9487e-22fa-483d-9f73-909560e812f3) and start prompting.
+Evidence retrieval: Mean Average Precision  or Recall
 
-Changes made via Lovable will be committed automatically to this repo.
+## Screenshots 
+<img width="796" height="770" alt="login" src="https://github.com/user-attachments/assets/b831d521-e1c7-4a56-a404-4461e886678d" />
+<img width="1841" height="868" alt="dashboard" src="https://github.com/user-attachments/assets/fb54b937-adc1-4670-9a79-425eb90b5064" />
+<img width="1129" height="810" alt="output" src="https://github.com/user-attachments/assets/5ef62305-07ec-43e3-a64b-a5a7f1461530" />
 
-**Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/efd9487e-22fa-483d-9f73-909560e812f3) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes it is!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

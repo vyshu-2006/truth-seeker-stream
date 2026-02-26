@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Info, Sparkles, X, Search, ExternalLink, FileText, Clock, LogOut } from "lucide-react";
+import { Shield, FileText, Clock, X, CheckCircle, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import AnalysisResult from "@/components/AnalysisResult";
 import HistoryItem from "@/components/HistoryItem";
+import AnalyzeCard from "@/components/AnalyzeCard";
+import Header from "@/components/Header";
 import { analyzeContent } from "@/lib/analyzer";
 import { AnalysisResult as AnalysisResultType } from "@/types/analysis";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +26,6 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -35,13 +33,10 @@ const Index = () => {
       }
     );
 
-    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
-      if (!session) {
-        navigate("/auth");
-      }
+      if (!session) navigate("/auth");
     });
 
     return () => subscription.unsubscribe();
@@ -50,50 +45,33 @@ const Index = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
-    });
+    toast({ title: "Signed out", description: "You have been signed out successfully." });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
 
-  if (!session) {
-    return null;
-  }
+  if (!session) return null;
 
   const handleUrlAnalysis = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a URL to analyze"
-      });
+      toast({ variant: "destructive", title: "Error", description: "Please enter a URL to analyze" });
       return;
     }
-
     setIsAnalyzing(true);
     try {
       const result = await analyzeContent({ type: "url", content: url });
       setAnalysisResult(result);
       setHistory(prev => [result, ...prev]);
-      toast({
-        title: "Analysis Complete",
-        description: "We've analyzed the content for reliability."
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Analysis Failed",
-        description: "We couldn't analyze this URL. Please try again."
-      });
+      toast({ title: "Analysis Complete", description: "Content reliability assessed." });
+    } catch {
+      toast({ variant: "destructive", title: "Analysis Failed", description: "Please try again." });
     } finally {
       setIsAnalyzing(false);
     }
@@ -102,29 +80,17 @@ const Index = () => {
   const handleTextAnalysis = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter text to analyze"
-      });
+      toast({ variant: "destructive", title: "Error", description: "Please enter text to analyze" });
       return;
     }
-
     setIsAnalyzing(true);
     try {
       const result = await analyzeContent({ type: "text", content: text });
       setAnalysisResult(result);
       setHistory(prev => [result, ...prev]);
-      toast({
-        title: "Analysis Complete",
-        description: "We've analyzed the content for reliability."
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Analysis Failed",
-        description: "We couldn't analyze this text. Please try again."
-      });
+      toast({ title: "Analysis Complete", description: "Content reliability assessed." });
+    } catch {
+      toast({ variant: "destructive", title: "Analysis Failed", description: "Please try again." });
     } finally {
       setIsAnalyzing(false);
     }
@@ -136,202 +102,119 @@ const Index = () => {
     setText("");
   };
 
-  const viewHistoryItem = (item: AnalysisResultType) => {
-    setAnalysisResult(item);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
-      <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <header className="mb-12 fade-in">
-          <div className="flex justify-between items-start mb-8">
-            <div className="flex-1"></div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">
-                {session.user.email}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSignOut}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="relative animate-float">
-                <Sparkles className="h-14 w-14 text-primary animate-pulse" />
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full -z-10"></div>
-              </div>
-            </div>
-            <h1 className="text-5xl font-bold mb-3 primary-gradient-text drop-shadow-sm">
-              Truth Seeker
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-              Real-time fake news detection powered by advanced analysis
-            </p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-background">
+      <Header session={session} onSignOut={handleSignOut} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Card className="shadow-lg border-t-4 border-t-primary overflow-hidden transition-all duration-300 hover:shadow-xl scale-in card-focus">
-              <CardHeader className="glass-panel">
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Search className="h-5 w-5 text-primary" />
-                  Analyze Content
-                </CardTitle>
-                <CardDescription>
-                  Enter a URL or paste text to analyze its reliability
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <Tabs defaultValue="url" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6 rounded-lg">
-                    <TabsTrigger value="url" className="flex items-center gap-2 rounded-l-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                      <ExternalLink className="h-4 w-4" />
-                      URL
-                    </TabsTrigger>
-                    <TabsTrigger value="text" className="flex items-center gap-2 rounded-r-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                      <FileText className="h-4 w-4" />
-                      Text
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="url" className="animate-fade-in">
-                    <form onSubmit={handleUrlAnalysis} className="space-y-4">
-                      <Input
-                        placeholder="Enter news article URL"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        className="transition-all focus-within:ring-2 ring-primary/50 shadow-sm"
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full transition-all hover:shadow-md btn-hover-effect"
-                        disabled={isAnalyzing}
-                      >
-                        {isAnalyzing ? (
-                          <span className="flex items-center gap-2">
-                            <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span> 
-                            Analyzing...
-                          </span>
-                        ) : "Analyze URL"}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                  <TabsContent value="text" className="animate-fade-in">
-                    <form onSubmit={handleTextAnalysis} className="space-y-4">
-                      <Textarea
-                        placeholder="Paste news content here"
-                        rows={6}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        className="transition-all focus-within:ring-2 ring-primary/50 shadow-sm resize-none"
-                      />
-                      <Button 
-                        type="submit" 
-                        className="w-full transition-all hover:shadow-md btn-hover-effect"
-                        disabled={isAnalyzing}
-                      >
-                        {isAnalyzing ? (
-                          <span className="flex items-center gap-2">
-                            <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span> 
-                            Analyzing...
-                          </span>
-                        ) : "Analyze Text"}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+      <main className="container mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl">
+        {/* Hero */}
+        <section className="text-center mb-12 fade-in">
+          <div className="flex justify-center mb-5">
+            <div className="relative animate-float">
+              <div className="p-4 rounded-2xl primary-gradient shadow-lg">
+                <Shield className="h-10 w-10 text-primary-foreground" />
+              </div>
+              <div className="absolute inset-0 primary-gradient blur-2xl opacity-30 rounded-2xl -z-10 scale-150" />
+            </div>
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold mb-3 primary-gradient-text tracking-tight">
+            Truth Seeker
+          </h1>
+          <p className="text-muted-foreground max-w-lg mx-auto text-lg">
+            Real-time fake news detection powered by advanced AI analysis
+          </p>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Main column */}
+          <div className="lg:col-span-2 space-y-6">
+            <AnalyzeCard
+              url={url}
+              text={text}
+              isAnalyzing={isAnalyzing}
+              onUrlChange={setUrl}
+              onTextChange={setText}
+              onUrlSubmit={handleUrlAnalysis}
+              onTextSubmit={handleTextAnalysis}
+            />
 
             {analysisResult && (
-              <Card className="shadow-lg border-t-4 border-t-primary transform transition-all duration-300 hover:shadow-xl animate-scale-in">
-                <CardHeader className="flex flex-row items-center justify-between glass-panel">
-                  <div>
-                    <CardTitle className="flex items-center gap-2 text-xl">
-                      <CheckCircle className="h-5 w-5 text-primary" />
-                      Analysis Results
-                    </CardTitle>
-                    <CardDescription>
-                      Our assessment of the content's reliability
-                    </CardDescription>
+              <div className="card-elevated p-6 sm:p-8 animate-scale-in">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-success/10">
+                      <CheckCircle className="h-5 w-5 text-success" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-display font-semibold">Analysis Results</h2>
+                      <p className="text-sm text-muted-foreground">Content reliability assessment</p>
+                    </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={clearAnalysis}
                     aria-label="Clear analysis"
-                    className="rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
+                    className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <X className="h-5 w-5" />
                   </Button>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <AnalysisResult result={analysisResult} />
-                </CardContent>
-                <CardFooter className="text-sm text-muted-foreground glass-panel rounded-b-lg p-4 flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  <span>
-                    Analysis performed using our proprietary algorithm. Results should be used as a guide only.
-                  </span>
-                </CardFooter>
-              </Card>
+                </div>
+                <AnalysisResult result={analysisResult} />
+                <div className="mt-6 pt-4 border-t border-border flex items-center gap-2 text-sm text-muted-foreground">
+                  <Info className="h-4 w-4 text-primary shrink-0" />
+                  <span>Results should be used as a guide. Always verify with multiple sources.</span>
+                </div>
+              </div>
             )}
           </div>
 
-          <div>
-            <Card className="shadow-lg border-t-4 border-t-primary h-full transition-all duration-300 hover:shadow-md scale-in">
-              <CardHeader className="glass-panel">
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Analysis History
-                </CardTitle>
-                <CardDescription>
-                  Previous content you've analyzed
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4">
-                <ScrollArea className="h-[540px] pr-4">
-                  {history.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-12 px-4 bg-muted/10 rounded-lg border border-dashed border-muted flex flex-col items-center justify-center h-56 animate-fade-in">
-                      <FileText className="h-12 w-12 text-muted-foreground/40 mb-3 animate-float" />
-                      <p className="font-medium">No analysis history yet</p>
-                      <p className="text-sm mt-2 max-w-xs">
-                        Analyzed content will appear here for quick reference
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {history.map((item, index) => (
-                        <HistoryItem 
-                          key={index} 
-                          item={item} 
-                          onClick={() => viewHistoryItem(item)} 
-                        />
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
+          {/* History sidebar */}
+          <aside className="fade-in-up stagger-2">
+            <div className="card-elevated p-6 h-full">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 rounded-lg bg-accent">
+                  <Clock className="h-5 w-5 text-accent-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-display font-semibold">History</h2>
+                  <p className="text-sm text-muted-foreground">Previous analyses</p>
+                </div>
+              </div>
+              <ScrollArea className="h-[500px] pr-2">
+                {history.length === 0 ? (
+                  <div className="text-center py-16 px-4">
+                    <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3 animate-float" />
+                    <p className="font-medium text-muted-foreground">No history yet</p>
+                    <p className="text-sm mt-1 text-muted-foreground/70">
+                      Analyzed content will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {history.map((item, index) => (
+                      <HistoryItem
+                        key={index}
+                        item={item}
+                        onClick={() => setAnalysisResult(item)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            </div>
+          </aside>
         </div>
-        
-        <footer className="mt-20 text-center text-muted-foreground text-sm pb-8 fade-in">
-          <div className="flex items-center justify-center mb-2">
-            <div className="h-px w-12 bg-muted-foreground/30 mr-4"></div>
-            <Sparkles className="h-4 w-4 text-primary/60 animate-pulse" />
-            <div className="h-px w-12 bg-muted-foreground/30 ml-4"></div>
+
+        <footer className="mt-16 text-center text-muted-foreground text-sm pb-8 fade-in">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="h-px w-10 bg-border" />
+            <Shield className="h-4 w-4 text-primary/50" />
+            <div className="h-px w-10 bg-border" />
           </div>
-          <p>© 2025 Truth Seeker - Helping you navigate the sea of information</p>
+          <p>© 2026 Truth Seeker — Navigate information with confidence</p>
         </footer>
-      </div>
+      </main>
     </div>
   );
 };

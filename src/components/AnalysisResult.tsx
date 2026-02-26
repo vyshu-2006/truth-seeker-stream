@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +12,9 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
   const { score, content, factualConsistency, sourceReputation, sentimentAnalysis, contentType, analysisFactors, url, type } = result;
 
   const getScoreColor = (value: number) => {
-    if (value >= 70) return "bg-green-500";
-    if (value >= 40) return "bg-yellow-500";
-    return "bg-red-500";
+    if (value >= 70) return "bg-success";
+    if (value >= 40) return "bg-warning";
+    return "bg-destructive";
   };
 
   const getScoreBadge = (value: number) => {
@@ -25,9 +24,9 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
   };
 
   const getScoreIcon = (value: number) => {
-    if (value >= 70) return <CheckCircle className="h-6 w-6 text-green-500" />;
-    if (value >= 40) return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
-    return <XCircle className="h-6 w-6 text-red-500" />;
+    if (value >= 70) return <CheckCircle className="h-7 w-7 text-success" />;
+    if (value >= 40) return <AlertTriangle className="h-7 w-7 text-warning" />;
+    return <XCircle className="h-7 w-7 text-destructive" />;
   };
 
   const getReliabilityClass = (value: number) => {
@@ -38,103 +37,99 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+      {/* Score header */}
+      <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border">
+        <div className="flex items-center gap-3">
           {getScoreIcon(score)}
           <div>
-            <h3 className="font-semibold text-lg">Overall Reliability</h3>
-            <p className={`text-sm font-medium ${getReliabilityClass(score)}`}>
+            <h3 className="font-display font-semibold text-lg">Overall Reliability</h3>
+            <p className={`text-sm ${getReliabilityClass(score)}`}>
               {score >= 70 ? "High Reliability" : score >= 40 ? "Medium Reliability" : "Low Reliability"}
             </p>
           </div>
         </div>
-        <Badge className={`score-badge ${getScoreBadge(score)}`}>{score}%</Badge>
+        <Badge className={`score-badge ${getScoreBadge(score)} border-0`}>{score}%</Badge>
       </div>
 
+      {/* Progress bar */}
       <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">Reliability Score</span>
-          <span className="text-sm font-medium">{score}%</span>
+        <div className="flex justify-between items-center text-sm">
+          <span className="font-medium text-muted-foreground">Reliability Score</span>
+          <span className="font-semibold">{score}%</span>
         </div>
-        <Progress value={score} className={`h-2 ${getScoreColor(score)}`} />
+        <Progress value={score} className={`h-2.5 rounded-full ${getScoreColor(score)}`} />
       </div>
 
-      {(type === "url" && url) && (
-        <div className="flex items-center space-x-2 text-sm bg-muted/30 p-3 rounded-md">
-          <ExternalLink className="h-4 w-4 text-primary" />
-          <a 
-            href={url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-primary hover:underline truncate"
-          >
+      {/* URL display */}
+      {type === "url" && url && (
+        <div className="flex items-center gap-2 text-sm bg-accent/50 p-3 rounded-lg">
+          <ExternalLink className="h-4 w-4 text-primary shrink-0" />
+          <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
             {url}
           </a>
         </div>
       )}
 
-      <div className="space-y-4 pt-4 border-t">
-        <h4 className="font-semibold">Analysis Details</h4>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2 bg-muted/10 p-3 rounded-md">
-            <h5 className="text-sm font-medium text-foreground/80">Content Type</h5>
-            <div className="flex items-center space-x-2">
-              {type === "url" ? (
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              )}
-              <p className="text-sm">{contentType}</p>
+      {/* Metrics grid */}
+      <div className="space-y-4 pt-4 border-t border-border">
+        <h4 className="font-display font-semibold">Analysis Details</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <MetricCard label="Content Type" icon={type === "url" ? <ExternalLink className="h-4 w-4" /> : <FileText className="h-4 w-4" />}>
+            <p className="text-sm font-medium">{contentType}</p>
+          </MetricCard>
+          <MetricCard label="Factual Consistency">
+            <div className="flex items-center gap-2">
+              <Progress value={factualConsistency} className={`h-2 flex-1 rounded-full ${factualConsistency >= 70 ? "bg-success" : factualConsistency >= 40 ? "bg-warning" : "bg-destructive"}`} />
+              <span className="text-sm font-semibold w-10 text-right">{factualConsistency}%</span>
             </div>
-          </div>
-          
-          <div className="space-y-2 bg-muted/10 p-3 rounded-md">
-            <h5 className="text-sm font-medium text-foreground/80">Factual Consistency</h5>
-            <div className="flex items-center space-x-2">
-              <Progress value={factualConsistency} className={`h-2 flex-1 ${factualConsistency >= 70 ? "bg-green-500" : factualConsistency >= 40 ? "bg-yellow-500" : "bg-red-500"}`} />
-              <span className="text-sm">{factualConsistency}%</span>
+          </MetricCard>
+          <MetricCard label="Source Reputation">
+            <div className="flex items-center gap-2">
+              <Progress value={sourceReputation} className={`h-2 flex-1 rounded-full ${sourceReputation >= 70 ? "bg-success" : sourceReputation >= 40 ? "bg-warning" : "bg-destructive"}`} />
+              <span className="text-sm font-semibold w-10 text-right">{sourceReputation}%</span>
             </div>
-          </div>
-          
-          <div className="space-y-2 bg-muted/10 p-3 rounded-md">
-            <h5 className="text-sm font-medium text-foreground/80">Source Reputation</h5>
-            <div className="flex items-center space-x-2">
-              <Progress value={sourceReputation} className={`h-2 flex-1 ${sourceReputation >= 70 ? "bg-green-500" : sourceReputation >= 40 ? "bg-yellow-500" : "bg-red-500"}`} />
-              <span className="text-sm">{sourceReputation}%</span>
-            </div>
-          </div>
-          
-          <div className="space-y-2 bg-muted/10 p-3 rounded-md">
-            <h5 className="text-sm font-medium text-foreground/80">Sentiment Analysis</h5>
-            <p className="text-sm">{sentimentAnalysis}</p>
-          </div>
+          </MetricCard>
+          <MetricCard label="Sentiment">
+            <p className="text-sm font-medium">{sentimentAnalysis}</p>
+          </MetricCard>
         </div>
+      </div>
 
-        {content && (
-          <div className="space-y-2 pt-4">
-            <h5 className="text-sm font-medium text-foreground/80">Content Preview</h5>
-            <div className="text-sm bg-muted/20 p-4 rounded-md max-h-40 overflow-y-auto border border-muted">
-              {content.substring(0, 300)}
-              {content.length > 300 && "..."}
-            </div>
-          </div>
-        )}
-
+      {/* Content preview */}
+      {content && (
         <div className="space-y-2 pt-4">
-          <h5 className="text-sm font-medium text-foreground/80">Key Analysis Factors</h5>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {analysisFactors.map((factor, index) => (
-              <li key={index} className="text-sm text-muted-foreground bg-muted/10 p-2 rounded-md flex items-start">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 mr-2"></span>
-                {factor}
-              </li>
-            ))}
-          </ul>
+          <h5 className="text-sm font-medium text-muted-foreground">Content Preview</h5>
+          <div className="text-sm bg-muted/30 p-4 rounded-lg max-h-36 overflow-y-auto border border-border font-mono text-xs leading-relaxed">
+            {content.substring(0, 300)}
+            {content.length > 300 && "..."}
+          </div>
         </div>
+      )}
+
+      {/* Analysis factors */}
+      <div className="space-y-3 pt-4">
+        <h5 className="text-sm font-medium text-muted-foreground">Key Factors</h5>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {analysisFactors.map((factor, index) => (
+            <li key={index} className="text-sm text-muted-foreground bg-accent/30 p-2.5 rounded-lg flex items-start gap-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+              {factor}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
+
+const MetricCard = ({ label, icon, children }: { label: string; icon?: React.ReactNode; children: React.ReactNode }) => (
+  <div className="p-3.5 rounded-lg bg-accent/30 border border-border/50 space-y-2">
+    <div className="flex items-center gap-2">
+      {icon && <span className="text-muted-foreground">{icon}</span>}
+      <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</h5>
+    </div>
+    {children}
+  </div>
+);
 
 export default AnalysisResult;

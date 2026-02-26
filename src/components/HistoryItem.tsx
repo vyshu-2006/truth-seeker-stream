@@ -1,10 +1,7 @@
-
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnalysisResult } from "@/types/analysis";
 import { Clock, ExternalLink, FileText, Shield } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface HistoryItemProps {
   item: AnalysisResult;
@@ -15,92 +12,53 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ item, onClick }) => {
   const { score, content, timestamp, type, url } = item;
 
   const getScoreBadge = (value: number) => {
-    if (value >= 70) return "bg-green-100 text-green-800";
-    if (value >= 40) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
+    if (value >= 70) return "score-high";
+    if (value >= 40) return "score-medium";
+    return "score-low";
   };
 
   const getBorderColor = (value: number) => {
-    if (value >= 70) return "#10b981";
-    if (value >= 40) return "#f59e0b";
-    return "#ef4444";
+    if (value >= 70) return "border-l-success";
+    if (value >= 40) return "border-l-warning";
+    return "border-l-destructive";
   };
 
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
+  const truncateText = (text: string, maxLength: number) =>
+    text.length <= maxLength ? text : text.substring(0, maxLength) + "...";
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
+  const formatTimestamp = (ts: string) =>
+    new Date(ts).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <Card 
-          className="cursor-pointer transition-all duration-300 hover:shadow-md hover:translate-y-[-2px] border-l-4 hover:border-primary overflow-hidden animate-scale-in group"
-          onClick={onClick}
-          style={{ borderLeftColor: getBorderColor(score) }}
-        >
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center">
-                {type === "url" ? (
-                  <ExternalLink className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
-                ) : (
-                  <FileText className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
-                )}
-                <span className="text-sm font-medium truncate max-w-[150px] group-hover:text-primary transition-colors">
-                  {type === "url" 
-                    ? truncateText(url || "URL Analysis", 30) 
-                    : "Text Analysis"}
-                </span>
-              </div>
-              <Badge className={`text-xs ${getScoreBadge(score)} shadow-sm transition-all duration-300 group-hover:shadow scale-in flex items-center gap-1`}>
-                <Shield className="h-3 w-3" /> {score}%
-              </Badge>
-            </div>
-            {content && (
-              <p className="text-xs text-muted-foreground mb-2 line-clamp-2 bg-muted/20 p-1.5 rounded group-hover:bg-muted/30 transition-colors">
-                {truncateText(content, 60)}
-              </p>
-            )}
-            <div className="flex items-center text-xs text-muted-foreground mt-2 opacity-80 group-hover:opacity-100 transition-opacity">
-              <Clock className="h-3 w-3 mr-1" />
-              <span>{formatTimestamp(timestamp)}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-64 p-3">
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium">Reliability Score: {score}%</h4>
-          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full transition-all duration-500" 
-              style={{ 
-                width: `${score}%`, 
-                backgroundColor: getBorderColor(score) 
-              }}
-            ></div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {content ? truncateText(content, 100) : "No content preview available"}
-          </p>
-          <div className="text-xs flex items-center text-muted-foreground pt-1 border-t">
-            <Clock className="h-3 w-3 mr-1" />
-            <span>{formatTimestamp(timestamp)}</span>
-          </div>
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-3.5 rounded-lg border border-border/50 bg-card hover:bg-accent/30 transition-all duration-200 hover:shadow-sm border-l-4 ${getBorderColor(score)} group`}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {type === "url" ? (
+            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+          ) : (
+            <FileText className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+          )}
+          <span className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+            {type === "url" ? truncateText(url || "URL", 28) : "Text Analysis"}
+          </span>
         </div>
-      </HoverCardContent>
-    </HoverCard>
+        <Badge className={`text-xs ${getScoreBadge(score)} border-0 shrink-0 ml-2 flex items-center gap-1`}>
+          <Shield className="h-3 w-3" /> {score}%
+        </Badge>
+      </div>
+      {content && (
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+          {truncateText(content, 70)}
+        </p>
+      )}
+      <div className="flex items-center text-xs text-muted-foreground/70">
+        <Clock className="h-3 w-3 mr-1" />
+        <span>{formatTimestamp(timestamp)}</span>
+      </div>
+    </button>
   );
 };
 
